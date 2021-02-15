@@ -44,7 +44,7 @@ fi
 if [ -x "${SCRIPT_DIR}/post-build.sh" ]
 then
     echo "Executing post-build script"
-    ./post-build.sh
+    DEBIAN_RELEASE=${DEBIAN_RELEASE} ./post-build.sh
 fi
 
 echo "$0 completed"
