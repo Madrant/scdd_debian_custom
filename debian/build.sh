@@ -47,5 +47,7 @@ then
     DEBIAN_RELEASE=${DEBIAN_RELEASE} ./post-build.sh
 fi
 
+ls -lh images | grep iso
+
 echo "$0 completed"
 exit 0
