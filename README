@@ -1,0 +1,12 @@
+A scripts to generate customized Debian installer
+
+Required packages:
+  simple-cdd
+
+Build command example:
+    build-simple-cdd \
+	--dist buster \
+	--conf ./simple-cdd.conf \
+	--dvd \
+	--verbose \
+	--kernel-packages linux-image-amd64
