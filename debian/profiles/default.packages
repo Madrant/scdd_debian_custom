@@ -26,6 +26,7 @@ mc
 mime-support
 minicom
 mupdf
+nano
 p7zip-full
 parted
 pciutils
@@ -63,51 +64,22 @@ ptpd
 tftpd
 samba
 
-# Dev tools
-gcc
-g++
-gdb
-make
-cmake
-pkg-config
-autoconf
-automake
-libtool
-libtool-bin
-cppcheck
-shellcheck
-ghc
-
 # Libraries:
 openscenegraph
 openmpi-bin
 mono-runtime
 qt5-default
 libqt5sql5-mysql
-libqt5datavisualization5-dev
 libqt5sql5
-libqt5svg5-dev
 libqt5websockets5
-libqt5websockets5-dev
 libqt5webengine5
 libqt5webenginewidgets5
-qtscript5-dev
-qtwebengine5-dev
-libmariadb-dev
-libmariadb-dev-compat
-libboost-iostreams-dev
 libgsl23
 libgmp10
 libgmp-dev
 libpwiz-tools
-libgnutls28-dev
-libghc-bzlib-dev
 libgd-dev
-libfontconfig1-dev
-libexpat1-dev
 expat
-nettle-dev
-zlib1g-dev
 python3-mpi4py
 python3-pyqt5
 python3-pyqt5.qtsql
@@ -120,34 +92,3 @@ python3-biopython-sql
 python3-mysqldb
 python3-sip
 python-gevent-websocket
-
-# Kernel headers:
-linux-headers-amd64
-
-# Desktop Environment:
-terminator
-gnome-keyring
-task-desktop
-openbox-lxde-session
-lightdm
-lxde
-lxlauncher
-lxsession
-# Provides perl-openssl-abi:
-perl-openssl-defaults
-libgnutls30
-libgnutls-openssl27
-# provides lxde-session:
-#obconf
-
-# Version control:
-git
-mercurial
-subversion
-# for tortoise-hg:
-python-sip
-tortoisehg
-meld
-
-# Special packages:
-#bilibop-lockfs

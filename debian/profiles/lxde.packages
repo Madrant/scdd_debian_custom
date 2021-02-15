@@ -1,0 +1,13 @@
+# LXDE
+task-desktop
+openbox-lxde-session
+lightdm
+lxde
+lxlauncher
+lxsession
+# Provides perl-openssl-abi:
+perl-openssl-defaults
+libgnutls30
+libgnutls-openssl27
+# provides lxde-session:
+#obconf

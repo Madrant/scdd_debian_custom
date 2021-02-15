@@ -1,0 +1,40 @@
+# Dev tools
+gcc
+g++
+gdb
+make
+cmake
+pkg-config
+autoconf
+automake
+libtool
+libtool-bin
+cppcheck
+shellcheck
+ghc
+
+# Libraries:
+libqt5datavisualization5-dev
+libqt5svg5-dev
+libqt5websockets5-dev
+qtscript5-dev
+qtwebengine5-dev
+libmariadb-dev
+libmariadb-dev-compat
+libboost-iostreams-dev
+libgmp-dev
+libgnutls28-dev
+libghc-bzlib-dev
+libgd-dev
+libfontconfig1-dev
+libexpat1-dev
+nettle-dev
+zlib1g-dev
+
+# Kernel headers:
+linux-headers-amd64
+
+# Version control:
+git
+mercurial
+subversion

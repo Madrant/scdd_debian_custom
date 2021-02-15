@@ -1,0 +1,7 @@
+# Desktop Environment:
+terminator
+gnome-keyring
+# for tortoise-hg:
+python-sip
+tortoisehg
+meld
