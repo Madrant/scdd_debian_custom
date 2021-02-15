@@ -1,0 +1,8 @@
+*/tmp/*
+tmp/*
+
+images/*.iso
+images/*.list.gz
+
+*.deb
+debian/images/*
