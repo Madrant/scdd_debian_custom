@@ -1,0 +1,3 @@
+Custom packages for automatic installation during setup
+
+Don't forget to add packages names to profiles/default.packages
