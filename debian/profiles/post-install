@@ -26,6 +26,241 @@ SCRIPT_DIR="$(dirname $(readlink -f $0))"
 
 # Setup install-time directories
 SCDD=/cdrom/simple-cdd
+TARGET_ROOT=/target
+DEB_DIR=/opt/deb
+
+# Setup system variables
+GRUB_TIMEOUT=3
+
+APT_MIRROR="http://mirror.yandex.ru"
+APT_PROXY="apt-cacher.localnet:3142"
+
+PROXY="http://corvus.localnet:8080"
+PROXY_EXCLUDE_CSV="*.localnet, 192.168.253.0/24"
+
+IP_ADDRESS="192.168.253.250/24"
+IP_NETMASK="255.255.255.0"
+IP_NETWORK="192.168.253.0"
+IP_BROADCAST="192.168.253.255"
+
+DNS_SERVER="192.168.253.104"
+
+# Functions
+do_copy_extra_packages() {
+    # Pre-run checks
+    if [ ! -d "${SCDD}" ]; then
+        echo "Directory not found: '${SCDD}'"
+        return
+    fi
+
+    # Create directory to store extra packages on target root
+    if [ ! -d "${TARGET_ROOT}${DEB_DIR}" ]; then
+        mkdir -p "${TARGET_ROOT}${DEB_DIR}"
+    fi
+
+    # Copy extra packages onto target root
+    for package in "${SCDD}"/*.deb; do
+        [ -e "${dir}" ] || break
+
+        echo "Copying extra package: ${package}"
+        cp -f "${package}" "${TARGET_ROOT}${DEB_DIR}/"
+    done
+}
+
+do_clean_network_settings() {
+    cat > ${CHROOT_PATH}/etc/network/interfaces <<-EOF
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+EOF
+}
+
+do_basic_setup() {
+    # Setup hostname
+    echo "${HOSTNAME}" > ${CHROOT_PATH}/etc/hostname
+
+    cat > ${CHROOT_PATH}/etc/hosts <<-EOF
+127.0.0.1 localhost ${HOSTNAME}
+EOF
+
+    # Setup mercurial configuration file
+    cat > ${CHROOT_PATH}/etc/mercurial/hgrc <<-EOF
+[tortoisehg]
+ui.language = en
+
+[ui]
+username = ${HOSTNAME}
+
+[extensions]
+purge =
+strip =
+rebase =
+largefiles =
+histedit =
+hggit =
+
+[http_proxy]
+host = ${PROXY}
+no=${PROXY_EXCLUDE_CSV}
+EOF
+
+    # Setup apt
+    cat > ${CHROOT_PATH}/etc/apt/sources.list <<-EOF
+deb ${APT_MIRROR}/debian buster main contrib non-free
+deb-src ${APT_MIRROR}/debian buster main contrib non-free
+
+deb ${APT_MIRROR}/debian/ buster-updates main contrib non-free
+deb-src ${APT_MIRROR}/debian/ buster-updates main contrib non-free
+
+deb ${APT_MIRROR}/debian-security buster/updates main contrib non-free
+deb-src ${APT_MIRROR}/debian-security buster/updates main contrib non-free
+EOF
+
+    # Setup apt proxy
+    cat > ${CHROOT_PATH}/etc/apt/apt.conf.d/99proxy <<-EOF
+Acquire::http::proxy "http://${APT_PROXY}";
+EOF
+
+    # Update library cache
+    ${CHROOT} ldconfig
+
+    # Tune sudoers file
+    #
+    # Set sudo command timeout to infinite
+    echo "Defaults timestamp_timeout=-1" >> ${CHROOT_PATH}/etc/sudoers
+
+    # Modify default PATH
+    str='PATH=${PATH}:/sbin:/usr/local/sbin'
+
+    echo -e "\n${str}" >> ${CHROOT_PATH}/etc/skel/.profile
+    echo -e "\n${str}" >> ${CHROOT_PATH}/etc/skel/.bashrc
+
+    for dir in ${CHROOT_PATH}/home/*; do
+        [ -e "${dir}" ] || break
+        [ -d "${dir}" ] || continue
+
+        echo -e "\n${str}" >> "${dir}/.profile"
+        echo -e "\n${str}" >> "${dir}/.bashrc"
+    done
+
+    # Setup system proxy
+    echo "ftp_proxy=${PROXY}" >> /etc/environment
+    echo "http_proxy=${PROXY}" >> /etc/environment
+    echo "https_proxy=${PROXY}" >> /etc/environment
+}
+
+# Change /etc/default/grub and update grub
+#
+# $1 - mode selected: rw, ro (default: rw)
+# $2 - command to run in chroot environment
+do_grub_setup() {
+    mode="${1}"
+    chroot_cmd="${2}"
+
+    if [ -z "${mode}" ]; then
+        mode="rw"
+    fi
+
+    if [ "${mode}" != "rw" ] && [ "${mode}" != "ro" ]; then
+        echo "Error: do_grub_setup: mode incorrect: must be: 'ro' or 'rw'"
+        return
+    fi
+
+    grub_default=0
+
+    # Assuming bilibop-lockfs package is installed
+    if [ "${mode}" = "ro" ]; then
+        grub_default=2
+    fi
+
+    # Configure grub
+    cat > ${CHROOT_PATH}/etc/default/grub <<-EOF
+GRUB_DEFAULT=${grub_default}
+GRUB_TIMEOUT=${GRUB_TIMEOUT}
+GRUB_CMDLINE_LINUX_DEFAULT=""
+GRUB_CMDLINE_LINUX=""
+
+GRUB_TERMINAL=console
+GRUB_DISABLE_SUBMENU=y
+EOF
+
+    # Update grub
+    PATH=${PATH}:/usr/local/bin:/usr/local/sbin
+
+    for dir in proc dev sys; do
+        mkdir -p ${CHROOT_PATH}/${dir}
+        mount --bind /${dir} ${CHROOT_PATH}/${dir}
+    done
+
+    # Run custom command in chroot environment
+    if [ ! -z "${chroot_cmd}" ]; then
+        ${CHROOT} printf "y\n" | ${CHROOT} "${chroot_cmd}"
+    fi
+
+    # unmount target root
+    for dir in proc dev sys; do
+        umount ${CHROOT_PATH}/${dir}
+    done
+}
+
+do_network_setup() {
+    # Select first not loopback interface
+    interface=""
+
+    for iface in /sys/class/net/*; do
+        [ -e "${iface}" ] || break
+
+        iface=$(basename "${iface}")
+
+        if [ "${iface}" != "lo" ]; then
+            interface="${iface}"
+            break;
+        fi
+    done
+
+    if [ -z "${interface}" ]; then
+        echo "Error: do_network_setup: Cannot auto-select interface"
+        return
+    fi
+
+    # Setup first found network interface
+    cat > ${CHROOT_PATH}/etc/network/interfaces.d/${interface} <<-EOF
+auto ${interface}
+iface ${interface} inet static
+	address ${IP_ADDRESS}
+	netmask ${IP_NETMASK}
+	network ${IP_NETWORK}
+	broadcast ${IP_BROADCAST}
+EOF
+
+    # Setup DNS server
+    cat > ${CHROOT_PATH}/etc/resolv.conf <<-EOF
+nameserver ${DNS_SERVER}
+EOF
+}
+
+# $1 - directory to search
+# $2 - file mask
+locate_and_install() {
+    directory="${1}"
+    mask="${2}"
+
+    ${CHROOT} find "${directory}" -type f -name "${mask}" -exec dpkg -i {} \;
+}
+
+do_app_setup_pc() {
+    echo "test"
+    #locate_and_install "${DEB_DIR}" "package.deb"
+    #${CHROOT} systemctl enable package-service
+}
+
+do_app_setup_server() {
+    echo "test"
+    #locate_and_install "${DEB_DIR}" "package.deb"
+    #${CHROOT} systemctl enable package-service
+}
+
 echo "$0 started"
 
 # Source debconf library:
@@ -43,9 +278,16 @@ trap chroot_cleanup EXIT
 
 # Post install logic starts here
 
+# Check that no packages are failed to install:
+if cat /var/log/syslog | grep "Failed to install"; then
+    echo "$0: Error: failed to install some packages - installation failed"
+    echo "$0: call 'cat /var/log/syslog | grep \"Failed to install\"' for additional information"
+    exit 1
+fi
+
 # Possibly debconf answers (see pre-install script):
 PC="PC"
-SERVER="SERVER"
+SERVER="Server"
 
 # If test mode enabled - show target selection screen using debconf
 if [ "${1}" = "test" ]; then
@@ -61,10 +303,28 @@ echo "Setting up target OS for: '${TARGET}'"
 # Perform OS configuration according to module selected
 case "${TARGET}" in
     "${PC}")
-        echo "Target is ${PC}"
+        HOSTNAME="pc"
+
+        do_copy_extra_packages
+        do_basic_setup
+        do_grub_setup "rw"
+
+        do_clean_network_settings
+        do_network_setup
+
+        do_app_setup_pc
         ;;
     "${SERVER}")
-        echo "Target is ${SERVER}"
+        HOSTNAME="server"
+
+        do_copy_extra_packages
+        do_basic_setup
+        do_grub_setup "rw"
+
+        do_clean_network_settings
+        do_network_setup
+
+        do_app_setup_server
         ;;
     *)
         echo "Unknown target: '${TARGET}'"
