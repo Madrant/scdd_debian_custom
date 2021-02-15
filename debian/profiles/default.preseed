@@ -216,3 +216,12 @@ d-i popularity-contest/participate  boolean false
 # shell commands.
 #;mkdir /mnt/srv
 #;chmod 777 /mnt/srv
+
+# loads the simple-cdd-profiles udeb to which asks for which profiles to use,
+# load the debconf preseeding and queue packages for installation.
+d-i preseed/early_command string anna-install simple-cdd-profiles	\
+    ;/cdrom/simple-cdd/pre-install
+
+d-i preseed/late_command string in-target mkdir /mnt/srv	\
+    ;in-target chmod 777 /mnt/srv	\
+    ;/cdrom/simple-cdd/post-install

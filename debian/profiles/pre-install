@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# debconf pre-install script
+#
+# Executed at Debian-install time
+# Asks for additional questions during setup
+#
+# During install the file will be placed at /cdrom/simple-cdd folder
+#
+# $1 - Provide "test" to test debconf locally
+
+# Exit on error
+set -e
+
+template_file="/tmp/template.postinstall"
+
+# Source debconf library:
+if [ "${1}" != "test" ]; then
+. /usr/share/debconf/confmodule
+fi
+
+# Possibly answers:
+PC="PC"
+SERVER="Server"
+
+# Create template
+echo "Creating template file"
+
+cat > "${template_file}" <<-EOF
+Template: postinstall/target-selected
+Type: select
+Choices: ${PC}, ${SERVER}
+Choices-ru.UTF-8: Рабочее место, Сервер
+Default: ${PC}
+Description: Please select installation target
+Description-ru.UTF-8: Выберите назначение целевой системы
+EOF
+
+# Load template
+echo "Loading template file '${template_file}'..."
+db_x_loadtemplatefile "${template_file}" postinstall
+
+# Ask question during setup
+db_input high postinstall/target-selected || /bin/true
+db_go
+
+exit 0
