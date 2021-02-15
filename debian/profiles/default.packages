@@ -17,6 +17,7 @@ fxload
 gawk
 gconf2
 gnuplot
+gnupg2
 gvfs
 less
 libusb-dev
