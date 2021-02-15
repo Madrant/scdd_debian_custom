@@ -1,7 +1,75 @@
 #!/bin/sh
 
 # debconf post install script
+#
+#
+# How to test post-install script:
+#   - Press Ctrl+F3 during install (on partitioning step)
+#   - Press Enter to activate console
+#   - mount target filesystem created after previous installation:
+#       mkdir /target
+#       mount /dev/sda5 /target
+#       mount /dev/sda1 /target/boot
+#
+#   - call post-install script:
+#       /cdrom/simple-cdd/post-install
+#
+# Parameters:
+#
+# $1 - pass 'test' for manual script test during setup
 
-touch /tmp/post-install.completed
+# Exit on error
+set -e
+
+# Setup global variables
+SCRIPT_DIR="$(dirname $(readlink -f $0))"
+
+# Setup install-time directories
+SCDD=/cdrom/simple-cdd
+echo "$0 started"
+
+# Source debconf library:
+. /usr/share/debconf/confmodule
+
+# Setup chroot
+. /lib/chroot-setup.sh
+
+CHROOT_PATH="/target"
+CHROOT="chroot ${CHROOT_PATH}"
+
+chroot_setup
+
+trap chroot_cleanup EXIT
+
+# Post install logic starts here
+
+# Possibly debconf answers (see pre-install script):
+PC="PC"
+SERVER="SERVER"
+
+# If test mode enabled - show target selection screen using debconf
+if [ "${1}" = "test" ]; then
+    source "${SCRIPT_DIR}/pre-install" "test"
+fi
+
+# Retrieve answers from debconf database
+db_get postinstall/target-selected || /bin/true
+TARGET="${RET}"
+
+echo "Setting up target OS for: '${TARGET}'"
+
+# Perform OS configuration according to module selected
+case "${TARGET}" in
+    "${PC}")
+        echo "Target is ${PC}"
+        ;;
+    "${SERVER}")
+        echo "Target is ${SERVER}"
+        ;;
+    *)
+        echo "Unknown target: '${TARGET}'"
+        exit 1
+        ;;
+esac
 
 echo "$0 completed successfully"
