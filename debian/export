@@ -7,4 +7,4 @@ DEBIAN_RELEASE=buster
 # export RELEASE_DATE=202009120945.00
 
 # Add custom disk label here
-export SIMPLE_CDD_DISK_LABEL="Debian-10"
+# export SIMPLE_CDD_DISK_LABEL="Debian-10"
