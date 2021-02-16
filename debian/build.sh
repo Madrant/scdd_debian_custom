@@ -47,6 +47,10 @@ then
     DEBIAN_RELEASE=${DEBIAN_RELEASE} ./post-build.sh
 fi
 
+# Sync writes to filesystem
+sync images/*.iso
+
+# Show generated ISO image size
 ls -lh images | grep iso
 
 echo "$0 completed"
