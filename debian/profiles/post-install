@@ -114,6 +114,9 @@ deb-src ${APT_MIRROR}/debian/ buster-updates main contrib non-free
 
 deb ${APT_MIRROR}/debian-security buster/updates main contrib non-free
 deb-src ${APT_MIRROR}/debian-security buster/updates main contrib non-free
+
+deb ${APT_MIRROR}/debian/ buster-backports main contrib non-free
+deb-src ${APT_MIRROR}/debian/ buster-backports main contrib non-free
 EOF
 
     # Setup apt proxy
