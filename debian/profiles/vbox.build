@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Mount VirtualBox guest additions iso
+mkdir -p /mnt/vbox
+mount -o loop /usr/share/virtualbox/VBoxGuestAdditions.iso /mnt/vbox
+
+# Run install script (build kernel modules)
+sh /mnt/vbox/VBoxLinuxAdditions.run
+
+# Cleanup
+umount /mnt/vbox
