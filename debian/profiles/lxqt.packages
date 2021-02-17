@@ -1,5 +1,18 @@
 # LXDE
 lxqt
+#pcmanfm
 sddm
-breeze-icon-theme
-adwaita-icon-theme
+x11-xkb-utils
+xkb-data
+xserver-xorg-core
+xserver-xorg-input-all
+xserver-xorg-video-all
+xserver-xorg
+xauth
+haveged
+#breeze-icon-theme
+#adwaita-icon-theme
+#lxde-icon-theme
+libqt5svg5
+papirus-icon-theme
+#gnome-icon-theme-nuovo
