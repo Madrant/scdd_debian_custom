@@ -1,4 +1,5 @@
 d-i debian-installer/locale string ru_RU.UTF-8
+d-i localechooser/supported-locales multiselect ru_RU.UTF-8 en_US.UTF-8 en_GB.UTF-8
 
 tasksel   tasksel/first multiselect
 
@@ -35,7 +36,7 @@ passwd   passwd/user-password-again  password useruser
 d-i      passwd/user-default-groups string cdrom floppy audio dip video plugdev sudo
 
 #### Network configuration.
-d-i netcfg/enable boolean true
+d-i netcfg/enable boolean false
 d-i netcfg/choose_interface select auto
 d-i netcfg/disable_autoconfig boolean true
 d-i netcfg/get_domain string localnet
@@ -68,7 +69,7 @@ d-i partman-auto-lvm/new_vg_name string vg0
 d-i partman/confirm boolean true
 
 d-i partman-auto/expert_recipe string \
-    boot-root :: \
+    boot-home-root :: \
 # Non-LVM /boot setup	\
 # <min size> <priority size> <max size> in MB: \
         512 512 512 ext4		\
@@ -82,7 +83,7 @@ d-i partman-auto/expert_recipe string \
             filesystem{ ext4 }		\
             mountpoint{ /boot }		\
             options/noatime{ noatime }	\
-            options/ro{ ro }		\
+            options/rw{ rw }		\
             options/discard{ discard }	\
         .	\
 # LVM /boot setup	\
@@ -96,7 +97,7 @@ d-i partman-auto/expert_recipe string \
             filesystem{ ext4 }		\
             mountpoint{ /boot }		\
             options/noatime{ noatime }	\
-            options/ro{ ro }		\
+            options/rw{ rw }		\
             options/discard{ discard }	\
         .	\
 # Root partition setup	\
@@ -112,6 +113,19 @@ d-i partman-auto/expert_recipe string \
             options/noatime{ noatime }	\
             options/discard{ discard }	\
         .	\
+# Home partition setup	\
+        16384 65536 262144 ext4		\
+            $lvmok{ }			\
+            $lv_name{ home }	\
+            label{ home }	\
+            method{ format }		\
+            format{ }			\
+            use_filesystem{ }		\
+            filesystem{ ext4 }		\
+            mountpoint{ /home }		\
+            options/noatime{ noatime }	\
+            options/discard{ discard }	\
+        .	\
 # Swap setup	\
         2048 4096 100% linux-swap	\
             method{ swap }		\
@@ -119,7 +133,7 @@ d-i partman-auto/expert_recipe string \
             options/discard{ discard }	\
         .
 
-d-i partman-auto/choose_recipe select boot-root
+d-i partman-auto/choose_recipe select boot-home-root
 
 d-i partman-lvm/confirm_nooverwrite boolean true
 d-i partman/confirm_write_new_label boolean true
