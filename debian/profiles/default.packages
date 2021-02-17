@@ -80,6 +80,8 @@ libgmp10
 libgmp-dev
 libpwiz-tools
 libgd-dev
+libgnutls28-dev
+libfontconfig1-dev
 expat
 python3-mpi4py
 python3-pyqt5
