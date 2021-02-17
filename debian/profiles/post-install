@@ -98,7 +98,6 @@ strip =
 rebase =
 largefiles =
 histedit =
-hggit =
 
 [http_proxy]
 host = ${PROXY}
