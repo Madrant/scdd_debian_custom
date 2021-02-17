@@ -280,16 +280,10 @@ trap chroot_cleanup EXIT
 
 # Post install logic starts here
 
-# Check that no packages are failed to install:
-if cat /var/log/syslog | grep "Failed to install"; then
-    echo "$0: Error: failed to install some packages - installation failed"
-    echo "$0: call 'cat /var/log/syslog | grep \"Failed to install\"' for additional information"
-    exit 1
-fi
-
 # Possibly debconf answers (see pre-install script):
-PC="PC"
+PC="Workstation"
 SERVER="Server"
+VM="VirtualMachine"
 
 # If test mode enabled - show target selection screen using debconf
 if [ "${1}" = "test" ]; then
@@ -328,10 +322,31 @@ case "${TARGET}" in
 
         do_app_setup_server
         ;;
+    "${VM}")
+        HOSTNAME="server"
+
+        do_copy_extra_packages
+        do_basic_setup
+        do_grub_setup "rw"
+
+        do_clean_network_settings
+        do_network_setup
+
+        do_app_setup_pc
+
+        cp "${SCDD}/vbox.build" "${TARGET_ROOT}/mnt"
+        ;;
     *)
         echo "Unknown target: '${TARGET}'"
         exit 1
         ;;
 esac
+
+# Check that no packages are failed to install:
+if cat /var/log/syslog | grep "Failed to install"; then
+    echo "$0: Error: failed to install some packages - installation failed"
+    echo "$0: call 'cat /var/log/syslog | grep \"Failed to install\"' for additional information"
+    exit 1
+fi
 
 echo "$0 completed successfully"
