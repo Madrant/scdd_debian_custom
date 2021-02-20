@@ -20,8 +20,10 @@ if [ "${1}" != "test" ]; then
 fi
 
 # Possibly answers:
-PC="PC"
+PC="Workstation"
 SERVER="Server"
+VM="VirtualMachine"
+CUSTOM="Custom"
 
 # Create template
 echo "Creating template file"
@@ -29,8 +31,8 @@ echo "Creating template file"
 cat > "${template_file}" <<-EOF
 Template: postinstall/target-selected
 Type: select
-Choices: ${PC}, ${SERVER}
-Choices-ru.UTF-8: Рабочее место, Сервер
+Choices: ${PC}, ${SERVER}, ${VM}, ${CUSTOM}
+Choices-ru.UTF-8: Рабочее место, Сервер, Виртуальная машина, Настроить
 Default: ${PC}
 Description: Please select installation target
 Description-ru.UTF-8: Выберите назначение целевой системы
@@ -43,5 +45,34 @@ db_x_loadtemplatefile "${template_file}" postinstall
 # Ask question during setup
 db_input high postinstall/target-selected || /bin/true
 db_go
+
+db_get postinstall/target-selected || /bin/true
+TARGET="${RET}"
+
+echo "Selected target: '${TARGET}'"
+
+# Select packages according to target selected
+case "${TARGET}" in
+    "${PC}")
+        db_set simple-cdd/profiles dev, lxqt, gui, ansible || /bin/true
+        ;;
+    "${SERVER}")
+        db_set simple-cdd/profiles dev, lxqt, gui, ansible || /bin/true
+        ;;
+    "${VM}")
+        db_set simple-cdd/profiles dev, lxqt, gui, vbox, ansible || /bin/true
+        ;;
+    "${CUSTOM}")
+        ;;
+    *)
+        echo "Unknown target: '${TARGET}'"
+        exit 1
+        ;;
+esac
+
+db_get simple-cdd/profiles
+PROFILES="${RET}"
+
+echo "Profiles selected: ${PROFILES}"
 
 exit 0
