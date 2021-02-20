@@ -72,6 +72,8 @@ samba
 openscenegraph
 openmpi-bin
 mono-runtime
+libblockdev-mdraid2
+libblockdev-crypto2
 qt5-default
 libqt5sql5-mysql
 libqt5sql5
