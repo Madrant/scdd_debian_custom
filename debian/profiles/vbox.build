@@ -1,11 +1,66 @@
-#!/bin/sh
+#!/bin/bash
+
+# Mount and build VirtualBox guest additions iso
+# from 'virtualbox-guest-additions-iso' package
+#
+# No parameters
+#
+# Required packages to build guest additions:
+#   - linux-headers
+#   - gcc
+
+VBOX_ISO="/usr/share/virtualbox/VBoxGuestAdditions.iso"
+VBOX_LOG="/var/log/vbox-build.log"
+
+MNT_PATH="/mnt/vbox"
+
+# Check if VirtualBox modules is already loaded
+# excluding built-in kernel module 'vboxguest'
+lsmod | grep -v vboxguest | grep vbox
+ret=$?
+
+if [ "${ret}" -eq 0 ]; then
+    echo "VirtualBox guest additions modules already loaded"
+
+    exit 0
+fi
+
+echo "No virtualbox kernel modules found"
+
+# Check for VirtualBox guest additions iso
+if [ ! -e "${VBOX_ISO}" ]; then
+    echo "VirtualBox Guest additions iso image is not found"
+    echo "please install 'virtualbox-guest-additions-iso' package"
+
+    exit 0
+fi
+
+# Get user id
+uid=$(id -u)
+echo "User id: ${uid}"
+
+# Use 'sudo' if user is not root
+if [ "${uid}" -eq 0 ]; then
+    sudo_cmd=""
+else
+    sudo_cmd="sudo"
+fi
+
+# Umount vbox dir in case of a previous error
+${sudo_cmd} umount "${MNT_PATH}"
 
 # Mount VirtualBox guest additions iso
-mkdir -p /mnt/vbox
-mount -o loop /usr/share/virtualbox/VBoxGuestAdditions.iso /mnt/vbox
+${sudo_cmd} mkdir -p "${MNT_PATH}"
+${sudo_cmd} mount -o loop "${VBOX_ISO}" "${MNT_PATH}"
+
+echo "VirtualBox guest additions build started"
 
 # Run install script (build kernel modules)
-sh /mnt/vbox/VBoxLinuxAdditions.run
+${sudo_cmd} "${MNT_PATH}/VBoxLinuxAdditions.run" | ${sudo_cmd} tee "${VBOX_LOG}"
 
 # Cleanup
-umount /mnt/vbox
+${sudo_cmd} umount "${MNT_PATH}"
+
+echo "VirtualBox guest additions build completed"
+
+exit 0

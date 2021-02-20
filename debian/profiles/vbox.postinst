@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Register vbox.build script into crontab
+
+VBOX_BUILD="/mnt/vbox.build"
+
+# Wait for system startup sequence completed (i.e. vbox modules loaded)
+# and then execute build script
+echo "@reboot root sleep 60 && ${VBOX_BUILD}" >> "/etc/cron.d/99vbox_build"
+
+exit 0
