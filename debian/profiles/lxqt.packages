@@ -1,6 +1,5 @@
 # LXDE
 lxqt
-#pcmanfm
 sddm
 x11-xkb-utils
 xkb-data
@@ -10,9 +9,6 @@ xserver-xorg-video-all
 xserver-xorg
 xauth
 haveged
-#breeze-icon-theme
-#adwaita-icon-theme
-#lxde-icon-theme
-libqt5svg5
 papirus-icon-theme
-#gnome-icon-theme-nuovo
+libqt5svg5
+libnotify-bin
