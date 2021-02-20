@@ -45,6 +45,9 @@ bzip2
 unzip
 unrar-free
 util-linux
+smartmontools
+nvme-cli
+man-db
 
 # Network tools:
 net-tools
