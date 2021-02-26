@@ -48,6 +48,9 @@ util-linux
 smartmontools
 nvme-cli
 man-db
+archivemount
+htop
+iotop
 
 # Network tools:
 net-tools
