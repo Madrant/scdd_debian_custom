@@ -60,8 +60,6 @@ do_copy_extra_packages() {
 
     # Copy extra packages onto target root
     for package in "${SCDD}"/*.deb; do
-        [ -e "${dir}" ] || break
-
         echo "Copying extra package: ${package}"
         cp -f "${package}" "${TARGET_ROOT}${DEB_DIR}/"
     done
