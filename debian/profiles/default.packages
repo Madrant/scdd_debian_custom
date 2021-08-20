@@ -10,6 +10,8 @@ debconf-utils
 dialog
 dosfstools
 e2fsprogs
+# mkinitrd
+dracut-core
 expect
 fakeroot
 file
@@ -21,6 +23,7 @@ gnupg2
 gvfs
 less
 libusb-dev
+libnss-systemd
 lshw
 lvm2
 mc
@@ -28,11 +31,11 @@ mime-support
 minicom
 mupdf
 nano
+vim-tiny
 p7zip-full
 parted
 pciutils
 policykit-1
-putty
 pv
 rsync
 scrot
@@ -51,6 +54,13 @@ man-db
 archivemount
 htop
 iotop
+ncdu
+ipmitool
+jq
+dctrl-tools
+apt-rdepends
+distro-info-data
+lsb-release
 
 # Network tools:
 net-tools
@@ -63,6 +73,8 @@ openssh-client
 iperf
 ethtool
 socat
+tcpdump
+telnet
 
 # System services:
 openbsd-inetd
